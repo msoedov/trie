@@ -7,8 +7,7 @@ from collections import defaultdict
 
 log = logging.getLogger(__name__)
 
-word_group = [set() for _ in range(30)]
-graph = defaultdict(set)
+cache_file = 'graph.pcl'
 
 
 def differs_by_one(first, seccond):
@@ -38,37 +37,47 @@ def build_graph():
     with open('/usr/share/dict/words', 'r') as f:
         words = f.read().split('\n')
 
-    # Groups by word len
-    word_group = [set() for _ in range(30)]
+    # Groups by words len
+    word_groups = [set() for _ in range(30)]
 
     for w in words:
-        word_group[len(w)].add(w)
+        word_groups[len(w)].add(w)
 
     graph = defaultdict(set)
-    for group in word_group:
+    for i, group in enumerate(word_groups):
+        ts = time.time()
         for w in group:
             for v in group:
                 if differs_by_one(w, v):
                     graph[w].add(v)
-    pickle.dump(graph, open('graph.pcl', 'wb'))
+        size = sys.getsizeof(graph)
+        log.debug('Build word group: %s in %.2f s graph size %d bytes', i, time.time() - ts, size)
+    log.debug('Writing to the cache file..')
+    pickle.dump(graph, open(cache_file, 'wb'))
     return graph
 
 
 def load_graph():
-    return pickle.load(open('graph.pcl', 'rb'))
+    return pickle.load(open(cache_file, 'rb'))
 
 
 def bfs(graph, start, goal):
-    def bfs_paths(graph, start, goal):
-        queue = [(start, [start])]
-        while queue:
-            (vertex, path) = queue.pop(0)
-            for next in graph[vertex] - set(path):
-                if next == goal:
-                    yield path + [next]
-                else:
-                    queue.append((next, path + [next]))
-    return list(bfs_paths(graph, start, goal))
+    """
+    Breath first search on a given graph
+    >>> bfs({'A': set(['B']),
+    ... 'B': set(['C']),
+    ... 'C': set()}, 'A', 'C')
+    ['A', 'B', 'C']
+    """
+    queue = [(start, [start])]
+    while queue:
+        (vertex, path) = queue.pop(0)
+        for next_node in graph[vertex] - set(path):
+            if next_node == goal:
+                return path + [next_node]
+            else:
+                queue.append((next_node, path + [next_node]))
+    return []
 
 
 def get_cli_parser():
@@ -93,8 +102,12 @@ if __name__ == '__main__':
     if args.debug:
         log.setLevel(logging.DEBUG)
         log.addHandler(logging.StreamHandler(sys.stdout))
+
     ts = time.time()
-    graph = load_graph()
+    if args.rebuild:
+        graph = build_graph()
+    else:
+        graph = load_graph()
     log.debug('Loaded in %s', time.time() - ts)
     paths = bfs(graph, args.start, args.end)
     log.debug('Here we go: %s', paths)
