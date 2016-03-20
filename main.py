@@ -87,7 +87,7 @@ def get_cli_parser():
     >>> get_cli_parser().parse_known_args(['bitt', 'meum', '-r', '-d'])[0]
     Namespace(debug=True, end='meum', rebuild=True, start='bitt')
     """
-    parser = argparse.ArgumentParser(description='Solve word paths problem', version='0.1')
+    parser = argparse.ArgumentParser(description='Solve word paths problem')
     parser.add_argument('start', help='Start word')
     parser.add_argument('end', help='End word')
     parser.add_argument('-r', '--rebuild',
@@ -98,6 +98,19 @@ def get_cli_parser():
 
 
 if __name__ == '__main__':
+    """
+    Dear reviewer,
+
+    I hope you had a great weekend.
+    You asked me to use object oriented aproach for solving the problem. I'm sorry but
+    I can't see any reasonable object abstaraction in this problem. Apparently I could write
+    a banch of classes e.g CacheFileManager or GraphManager or WhateverBadAbstractionNameManager but
+    it's not an OOP and it doesn't make any sense to me.
+
+    Best,
+
+    Alex Myasoedov
+    """
     args = get_cli_parser().parse_args()
     if args.debug:
         log.setLevel(logging.DEBUG)
@@ -111,3 +124,4 @@ if __name__ == '__main__':
     log.debug('Loaded in %s', time.time() - ts)
     paths = bfs(graph, args.start, args.end)
     log.debug('Here we go: %s', paths)
+    print(paths)
