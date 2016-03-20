@@ -1,7 +1,11 @@
-import pickle
 import argparse
+import logging
+import pickle
+import sys
 import time
 from collections import defaultdict
+
+log = logging.getLogger(__name__)
 
 
 def differs_by_one(first, seccond):
@@ -51,9 +55,26 @@ def load_graph():
     return pickle.load(open('graph.pcl', 'rb'))
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Finding word paths')
-    parser.add_argument('-l', '--load')
-    parser.add_argument('start')
-    parser.add_argument('end')
-    return
+def get_cli_parser():
+    """
+    Returns comand line argument parser
+    # It should return Namespace object when all arguments are passed
+    >>> get_cli_parser().parse_known_args(['bitt', 'meum', '-r', '-d'])[0]
+    Namespace(debug=True, end='meum', rebuild=True, start='bitt')
+    """
+    parser = argparse.ArgumentParser(description='Solve word paths problem', version='0.1')
+    parser.add_argument('start', help='Start word')
+    parser.add_argument('end', help='End word')
+    parser.add_argument('-r', '--rebuild',
+                        help='Load and rebuild word graph(can take a while)', action='store_true')
+    parser.add_argument('-d', '--debug',
+                        help='Turn on debug stderr logger', action="store_true")
+    return parser
+
+
+if __name__ == '__main__':
+    args = get_cli_parser().parse_args()
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+        log.addHandler(logging.StreamHandler(sys.stdout))
+
