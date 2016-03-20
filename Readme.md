@@ -14,7 +14,7 @@ have a copy of this file, please let us know.
 
 Some example solutions:
 
-rial ­> real ­> feal ­> foal ­> foul ­> foud
+  ­> real ­> feal ­> foal ­> foul ­> foud
 
 dung ­> dunt ­> dent ­> gent ­> geet ­> geez
 

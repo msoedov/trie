@@ -7,6 +7,9 @@ from collections import defaultdict
 
 log = logging.getLogger(__name__)
 
+word_group = [set() for _ in range(30)]
+graph = defaultdict(set)
+
 
 def differs_by_one(first, seccond):
     """
@@ -55,9 +58,22 @@ def load_graph():
     return pickle.load(open('graph.pcl', 'rb'))
 
 
+def bfs(graph, start, goal):
+    def bfs_paths(graph, start, goal):
+        queue = [(start, [start])]
+        while queue:
+            (vertex, path) = queue.pop(0)
+            for next in graph[vertex] - set(path):
+                if next == goal:
+                    yield path + [next]
+                else:
+                    queue.append((next, path + [next]))
+    return list(bfs_paths(graph, start, goal))
+
+
 def get_cli_parser():
     """
-    Returns comand line argument parser
+    Returns command line argument parser
     # It should return Namespace object when all arguments are passed
     >>> get_cli_parser().parse_known_args(['bitt', 'meum', '-r', '-d'])[0]
     Namespace(debug=True, end='meum', rebuild=True, start='bitt')
@@ -77,4 +93,8 @@ if __name__ == '__main__':
     if args.debug:
         log.setLevel(logging.DEBUG)
         log.addHandler(logging.StreamHandler(sys.stdout))
-
+    ts = time.time()
+    graph = load_graph()
+    log.debug('Loaded in %s', time.time() - ts)
+    paths = bfs(graph, args.start, args.end)
+    log.debug('Here we go: %s', paths)
