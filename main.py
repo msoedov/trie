@@ -98,19 +98,6 @@ def get_cli_parser():
 
 
 if __name__ == '__main__':
-    """
-    Dear reviewer,
-
-    I hope you had a great weekend.
-    You asked me to use object oriented aproach for solving the problem. I'm sorry but
-    I can't see any reasonable object abstaraction in this problem. Apparently I could write
-    a banch of classes e.g CacheFileManager or GraphManager or WhateverBadAbstractionNameManager but
-    it's not an OOP and it doesn't make any sense to me.
-
-    Best,
-
-    Alex Myasoedov
-    """
     args = get_cli_parser().parse_args()
     if args.debug:
         log.setLevel(logging.DEBUG)
